@@ -98,14 +98,12 @@ void reverse(double distance)
 
 int main(int argc, char **argv)
 {
-	// Use for testing
-	//  bcm2835_set_debug(1);
-
-	if (!bcm2835_init())
+	// initialize board
+	if (!bcm2835_init()) {
 		return 1;
+	}
 
-
-	// setup scheduling hack
+	// setup scheduling fifo and prevent paging
 	struct sched_param sp;
 	memset(&sp, 0, sizeof(sp));
 	sp.sched_priority = sched_get_priority_max(SCHED_FIFO);
@@ -120,7 +118,7 @@ int main(int argc, char **argv)
 	bcm2835_gpio_pud(SENSOR_ONE_ECHO);
 	bcm2835_gpio_fsel(SENSOR_ONE_TRIGGER, BCM2835_GPIO_FSEL_OUTP);
 
-	// Setup channel
+	// setup soft pwm 
 	set_loglevel(99);
         setup(10, DELAY_VIA_PWM);
 	int channel = 0;
@@ -141,11 +139,11 @@ int main(int argc, char **argv)
 		if(distance < 22.0 && distance > 18.0) {
 			full_stop();
 
-			// we are less than 18 go backwards
+		// we are less than 18 go backwards
 		} else if(distance <= 18.0) {
 			reverse(distance);
 
-			// if we are farther away, go forward
+		// if we are farther away, go forward
 		} else if(distance >= 22.0) {
 			forward(distance);			
 		}
